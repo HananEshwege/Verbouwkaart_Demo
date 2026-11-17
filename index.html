@@ -359,6 +359,27 @@ input[type=range]::-moz-range-thumb { width:18px; height:18px; border-radius:50%
 .cat .bar2 { height:6px; border-radius:3px; background:#eef0f2; margin-top:6px; overflow:hidden; }
 .cat .bar2 i { display:block; height:100%; background:linear-gradient(90deg,#0a8250,#0095f8); border-radius:3px; }
 .notif.declined .body b:nth-of-type(2) { color:#b3261e; }
+.confetti { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0; }
+.confetti i { position:absolute; top:-30px; border-radius:2px; opacity:.9; animation-name:fall; animation-timing-function:linear; animation-iteration-count:infinite; }
+@keyframes fall { 0% { transform:translateY(-30px) rotate(0deg); } 100% { transform:translateY(860px) rotate(540deg); } }
+.lock > :not(.confetti) { position:relative; z-index:1; }
+.notif.rich { flex-direction:column; gap:0; padding:12px 14px 0; overflow:hidden; }
+.rich .rh { display:flex; align-items:center; gap:8px; font-size:11.5px; letter-spacing:.04em; color:#555; }
+.rich .rh .app { width:22px; height:22px; border-radius:6px; } .rich .rh .app .pb-icon { transform:scale(.55); }
+.rich .rh .when { margin-left:auto; font-size:11px; color:#777; letter-spacing:0; }
+.rich .rt { font-size:15.5px; font-weight:900; margin-top:8px; line-height:1.3; }
+.rich .rb { font-size:13px; line-height:1.4; margin-top:3px; color:#222; }
+.rich .hero { margin:10px -14px 0; height:128px; background:linear-gradient(135deg,#0a8250 0%,#0a8f86 50%,#0095f8 100%); display:flex; align-items:center; justify-content:center; }
+.rich .hero svg { height:104px; }
+.rich .act { margin:0 -14px; padding:12px; text-align:center; font-size:14px; font-weight:800; color:#0964cd; background:rgba(255,255,255,.65); }
+.tax-box { margin:12px 18px 4px; padding:12px; border-radius:8px; background:#e6f4ec; display:flex; gap:10px; align-items:flex-start; }
+.tax-box .ico { width:30px; height:30px; border-radius:50%; background:var(--pb-green); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.tax-box .ico svg { width:15px; height:15px; }
+.tax-box b { display:block; font-size:13.5px; color:#0a5b36; }
+.tax-box span { display:block; font-size:12.5px; color:#2d4a3a; line-height:1.45; margin:2px 0 6px; }
+.tax-box .link { font-size:12.5px; }
+.tax-note { margin:10px 18px 0; display:flex; gap:8px; align-items:flex-start; padding:10px 12px; border-radius:6px; background:#e6f4ec; color:#0a5b36; font-size:12.5px; font-weight:700; line-height:1.4; }
+.tax-note svg { width:16px; height:16px; flex-shrink:0; margin-top:1px; }
 
 /* screen only */
 .top,.flavors,.notes,.strip,.hint,.nav-btn{display:none!important}
@@ -434,6 +455,7 @@ const ICON = {
   store:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l2-5h14l2 5M4 9v11h16V9M9 20v-6h6v6"/></svg>',
   globe:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>',
   home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>',
+  pct:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M19 5L5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/></svg>',
   calc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8"/><path d="M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 18h.01M12 18h.01M16 18h.01"/></svg>',
   wallet:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 14h2"/></svg>',
 };
@@ -458,12 +480,26 @@ const VCARD = () => `<div class="vcard">${HOUSE_SVG}<div class="vc-top"><span cl
   <div class="vc-row"><div><small>CVC</small>220</div><div><small>VALID THROUGH</small>05/28</div></div>
   <div class="vc-name">DAAN DE VRIES</div></div>`;
 
+const CONFETTI = () => { const cols = ['#ffd54f','#42a5f5','#66bb6a','#ff7043','#ffffff','#ab47bc']; let s = '<div class="confetti">';
+  for (let i = 0; i < 34; i++) { const l = (i*37)%100, d = -((i*0.37)%5).toFixed(2), dur = (4 + (i%5)*0.6).toFixed(1), w = 6 + (i%3)*2;
+    s += `<i style="left:${l}%;width:${w}px;height:${Math.round(w*1.6)}px;background:${cols[i%cols.length]};animation-duration:${dur}s;animation-delay:${d}s"></i>`; }
+  return s + '</div>'; };
+const HOUSE_HERO = `<svg viewBox="0 0 200 110" fill="none">
+  <path d="M60 52 L100 20 L140 52 V100 H60 Z" fill="#fff"/>
+  <path d="M52 56 L100 16 L148 56" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="91" y="68" width="18" height="32" rx="2" fill="#0a8250"/><circle cx="105" cy="85" r="1.8" fill="#ffd54f"/>
+  <rect x="70" y="62" width="14" height="13" rx="2" fill="#0095f8"/><rect x="116" y="62" width="14" height="13" rx="2" fill="#0095f8"/>
+  <g transform="translate(152 78) rotate(-35)"><circle cx="0" cy="0" r="9" stroke="#ffd54f" stroke-width="5"/><path d="M9 0 H34 M26 0 V7 M32 0 V6" stroke="#ffd54f" stroke-width="5" stroke-linecap="round"/></g>
+  <path d="M30 26 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3z" fill="#ffd54f"/><path d="M172 18 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z" fill="#fff"/>
+  <path d="M38 78 l1.5 4 4 1.5 -4 1.5 -1.5 4 -1.5 -4 -4 -1.5 4 -1.5z" fill="#fff"/><path d="M182 92 l1.5 4 4 1.5 -4 1.5 -1.5 4 -1.5 -4 -4 -1.5 4 -1.5z" fill="#ffd54f"/>
+</svg>`;
+
 /* ═════════ product definition ═════════ */
 const F = {
   name:'Renovation Card', who:'Existing mortgage customers',
   short:'A one-time renovation budget on a virtual card, offered right after the mortgage closes. Each purchase gets its own fixed plan.',
   cfg:[['Card','Virtual, multi-use'],['Budget','One-time, doesn’t refill'],['Customer','Existing, new mortgage'],['Trigger','Mortgage completion'],['Entry point','Bank app'],['Credit limit','Configurable'],['Spend window','18 months, configurable'],['Merchants','Home and renovation categories'],['Plans','Pay in full at 0% up to € 500, or 12 to 36 months'],['Plan chosen','After each purchase'],['Rate','Within the 12% legal cap'],['Identity','Bank’s existing KYC'],['Credit check','BKR, income and costs'],['Repayment','SEPA direct debit'],['Mortgage link','Trigger only, not secured']],
-  value:[['Ready on key day','Available right after the mortgage closes. No advisor, valuation or notary.'],['Interest only on what’s used','Draw as the renovation moves forward.'],['One budget, every renovation store','Instead of separate store credit at each shop.'],['Budget tracked in the app','Spend by category, a plan per purchase.']],
+  value:[['Ready on key day','Available right after the mortgage closes. No advisor, valuation or notary.'],['Interest only on what’s used','Draw as the renovation moves forward.'],['One budget, every renovation store','Instead of separate store credit at each shop.'],['Budget tracked in the app','Spend by category, a plan per purchase.'],['Possible tax benefit','Interest on fixed plans for home improvements may be deductible, up to 37.56% in 2026.']],
   limit:15000, apr:7.9, terms:[12,24,36], smallMax:500, useUntil:'May 2028', due:'25 Dec',
   purchases:[{m:'Klusplaats DIY', a:185.40, cat:'DIY and materials'},{m:'Keukenatelier Noord', a:8450, cat:'Kitchen'}],
 };
@@ -471,23 +507,29 @@ const F = {
 /* ═════════ screen builders ═════════ */
 const S = {};
 
-S.push = f => ({ stage:'Offer', title:'Mortgage completes, invitation sent', who:['bank','jifiti'],
-  note:'Completion of the mortgage at the notary triggers the journey. The bank can send the invitation any time in the first 12 months. Under CCD2 it must be an invitation to apply, not a pre-approved card, so nothing is issued until the customer asks.',
-  html: () => `<div class="screen"><div class="lock">${STATUS(true)}<div class="date">Tuesday 3 November</div><div class="clock">9:41</div>
-     ${NOTIF('Welcome home, Daan!','Lindenlaan 14 is officially yours. Planning to renovate? See what you could spend with a Renovation Card.','now')}
+S.push = f => ({ stage:'Offer', title:'Mortgage completes: congratulations', who:['bank','jifiti'],
+  note:'Completion of the mortgage at the notary triggers the journey. The bank opens with congratulations on the new home, not a sales pitch, and the renovation budget comes as the natural next step. The bank can send this any time in the first 12 months. Under CCD2 it must be an invitation to apply, not a pre-approved card.',
+  html: () => `<div class="screen"><div class="lock">${CONFETTI()}${STATUS(true)}<div class="date">Tuesday 3 November</div><div class="clock">9:41</div>
+     <div class="notif rich" onclick="next()">
+       <div class="rh"><div class="app">${PBI}</div><b>PRIMARY BANK</b><span class="when">now</span></div>
+       <div class="rt">Congratulations on your new home, Daan!</div>
+       <div class="rb">Lindenlaan 14 is officially yours. Enjoy settling in. When you’re ready to make it your own, your renovation budget can be ready today.</div>
+       <div class="hero">${HOUSE_HERO}</div>
+       <div class="act">See my renovation budget</div>
+     </div>
      <div class="tapme">Tap the notification to open the app</div></div></div>` });
 
 S.appHome = f => ({ stage:'Offer', title:'Bank app: renovation offer', who:['bank','jifiti'],
   note:'The offer sits right next to the new mortgage in the bank app. The banner deep-links into the Jifiti journey, so the customer never leaves the bank’s brand.',
   html: () => wrap(STATUS() + `<div class="nav-header" style="justify-content:center">${LOGO}</div>`,
     `<div class="promo-banner" onclick="next()"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l1.8 4.2 4.2 1.8-4.2 1.8L12 15l-1.8-4.2-4.2-1.8 4.2-1.8z" fill="#ffd54f"/><path d="M19 13l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7z" fill="#42a5f5"/></svg>
-      <p>Renovating your new home? One card for every renovation store, and interest only on what you use. <u>See if you qualify</u></p></div>
+      <p>Congratulations on your new home, Daan! Ready to make it yours? One card for every renovation store, interest only on what you use. <u>See your renovation budget</u></p></div>
      <div class="acct-tabs"><div class="on">Primary Bank</div><div>All accounts</div></div>
      <div class="acct-group"><span>Payments and savings (2)</span><span>${fmt(8594.20)}</span></div>
      <div class="acct-card"><div class="name">Current account… 4567</div><div class="amt">${fmt(2184.20)}</div></div>
      <div class="acct-card"><div class="name">Savings account… 7712</div><div class="amt">${fmt(6410)}</div></div>
-     <div class="acct-group"><span>Mortgage (1)</span><span>${fmt(385000)}</span></div>
-     <div class="acct-card"><div><div class="name">Home mortgage · Lindenlaan 14<span class="tag">NEW</span></div><div class="sub" style="margin-top:6px">Started 3 Nov 2026 · 30 years</div></div><div style="text-align:right"><div class="amt">${fmt(385000)}</div><div class="sub">outstanding</div></div></div>`,
+     <div class="acct-group"><span>Mortgage (1)</span><span>${fmt(500000)}</span></div>
+     <div class="acct-card"><div><div class="name">Home mortgage · Lindenlaan 14<span class="tag">NEW</span></div><div class="sub" style="margin-top:6px">Started 3 Nov 2026 · 30 years</div></div><div style="text-align:right"><div class="amt">${fmt(500000)}</div><div class="sub">outstanding</div></div></div>`,
     `<div class="tabbar"><div class="on">${ICON.bank}Accounts</div><div>${ICON.split}Transfer</div><div>${ICON.card}Cards</div><div>${ICON.face}Profile</div></div>`) });
 
 S.welcome = f => ({ stage:'Onboarding', title:'Welcome and terms', who:['jifiti'],
@@ -500,6 +542,7 @@ S.welcome = f => ({ stage:'Onboarding', title:'Welcome and terms', who:['jifiti'
         ['split','Interest only on what you use','Your budget is there when you need it. Unused credit costs nothing.'],
         ['cal','Choose how to pay, per purchase','Pay small purchases in full at 0%, or spread larger ones over 12 to 36 months.'],
         ['home','Separate from your mortgage','No advisor, valuation or notary needed.'],
+        ['pct','Possible tax benefit','Interest on home improvements may be tax-deductible. We keep your receipts ready for your tax return.'],
       ].map(([i,b,s])=>`<div class="perk"><div class="ico">${ICON[i]}</div><div><b>${b}</b>${s}</div></div>`).join('')}</div>
      <div class="pad">${chk('I have read and agree to Primary Bank’s <a>Terms and Conditions</a> and <a>Privacy Statement</a>.')}</div>`,
     cta('Check my budget', { gate:true, secondary:'No thanks', secondaryClick:'go(1)' })) });
@@ -511,7 +554,7 @@ S.confirm = f => ({ stage:'Onboarding', title:'Confirm your details', who:['jifi
      <div class="pad">${field('Full name','Daan de Vries','ro')}${field('Home address','Lindenlaan 14, 3581 GD Utrecht','ro')}
       <div class="row2">${field('Mobile','+31 6 1234 5678','ro')}${field('Date of birth','14-06-1991','ro')}</div>
       <div class="sec-lbl">Income and housing costs</div>
-      <div class="row2">${field('Net income / month', fmt0(4850),'ro')}${field('Mortgage / month', fmt0(1585),'ro')}</div>
+      <div class="row2">${field('Net income / month', fmt0(6450),'ro')}${field('Mortgage / month', fmt0(2330),'ro')}</div>
       ${fillField('Other loans or credit / month', fmt0(0))}
       ${chk('My income and costs above are still correct.')}
       ${chk('I agree that Primary Bank checks my registration at BKR to assess what I can responsibly borrow.')}</div>`,
@@ -583,6 +626,7 @@ S.agreement = f => ({ stage:'Approval', title:'Credit agreement: accept and sign
       <div class="dr"><span>Annual percentage rate</span><span>${pct(f.apr)}</span></div>
       <div class="dr"><span>Plans</span><span>Pay in full at 0% up to ${fmt0(f.smallMax)}, or 12 to 36 months</span></div>
       <div class="dr"><span>Repayment</span><span>SEPA direct debit, ••4567</span></div>
+      <div class="dr"><span>Repayment schedule</span><span>Annuity, per purchase plan</span></div>
       <div class="dr"><span>Registration</span><span>BKR</span></div>
       <div class="callout">This credit is not secured by your mortgage or your home.</div>
       <h5>Right of withdrawal</h5>
@@ -633,17 +677,17 @@ S.sspHome = f => ({ stage:'Servicing', title:'App: purchases to plan', who:['jif
 
 S.plan = (f, i) => { const p = f.purchases[i], small = p.a <= f.smallMax;
   return { stage:'Servicing', title: small ? 'Choose a plan: small purchase' : 'Choose a plan: large purchase', who:['jifiti','servicing'], planIdx:i,
-  note: small ? 'Small purchase: pay in full at 0% by the due date, or spread it over 12 months.' : 'Large purchase: instalments only, at the customer’s rate. Pay in full is limited to purchases up to €500. The plan is booked on this purchase only.',
+  note: small ? 'Small purchase: pay in full at 0% by the due date, or spread it over 12 months.' : 'Large purchase: instalments only, at the customer’s rate. Pay in full is limited to purchases up to €500. The plan is booked on this purchase only. A fixed annuity plan on a home improvement is what can make the interest tax-deductible.',
   html: () => { const terms = small ? [12] : f.terms;
     const opts = (small ? [['full','Pay in full',`0% interest · on ${f.due}`, fmt(p.a)]] : []).concat(terms.map(t=>{const m=pmt(p.a,f.apr,t); return [`t${t}`,`${t} months`,`${pct(f.apr)} APR · interest ${fmt(m*t-p.a)}`,`${fmt(m)}/mo`];}));
     const sel = ST.plans[i] || (small?'full':'t24');
     return wrap(APP(),
     `<div class="purchase-card"><div class="m">${p.m} · 21 Nov</div><div class="a">${fmt(p.a)}</div><div class="d">Choose how you’d like to pay for this purchase.</div></div>
-     ${opts.map(([k,t,s,r])=>`<div class="plan${sel===k?' sel':''}" onclick="setPlan(${i},'${k}')"><div class="top-row"><div class="price" style="font-size:15.5px">${t}${k==='full'?'<span class="tag">0%</span>':''}</div><div class="apr" style="font-size:14px">${r}</div></div><div class="note-sm" style="margin-top:2px">${s}</div></div>`).join('')}`,
+     ${opts.map(([k,t,s,r])=>`<div class="plan${sel===k?' sel':''}" onclick="setPlan(${i},'${k}')"><div class="top-row"><div class="price" style="font-size:15.5px">${t}${k==='full'?'<span class="tag">0%</span>':''}</div><div class="apr" style="font-size:14px">${r}</div></div><div class="note-sm" style="margin-top:2px">${s}</div></div>`).join('')}${small?'':`<div class="tax-note">${ICON.pct}<span>As a home improvement, the interest on this plan may be tax-deductible.</span></div>`}`,
     cta('Confirm plan', { onclick:`confirmPlan(${i})` })); } }; };
 
 S.sspDone = f => ({ stage:'Servicing', title:'Plans active, renovation budget tracked', who:['servicing','jifiti'],
-  note:'Each purchase has its own schedule, collected by SEPA direct debit. Spend is grouped by category so the customer can track the renovation budget. The budget doesn’t refill, so the credit ends once the renovation is paid off.',
+  note:'Each purchase has its own schedule, collected by SEPA direct debit. Spend is grouped by category so the customer can track the renovation budget. The budget doesn’t refill, so the credit ends once the renovation is paid off. Interest on a loan spent on improving or maintaining the own home can be deductible in box 1 (up to 37.56% in 2026) with an annuity or linear schedule within 30 years and receipts as proof. Fixed plans can qualify; revolving credit and furniture don’t.',
   html: () => { const used = f.purchases.reduce((s,p)=>s+p.a,0);
     const lines = f.purchases.map((p,i)=>{ const k = ST.plans[i] || (p.a<=f.smallMax?'full':'t24');
       if (k==='full') return [p.m, 'Pay in full · 0%', `${fmt(p.a)} on ${f.due}`];
@@ -655,6 +699,7 @@ S.sspDone = f => ({ stage:'Servicing', title:'Plans active, renovation budget tr
      ${lines.map(([m,pl,n])=>`<div class="tx"><div class="l"><b>${m}</b><span>${pl}</span></div><div class="r"><span class="pill ok">ACTIVE</span><div class="note-sm" style="margin-top:4px">Next: ${n}</div></div></div>`).join('')}
      <div class="ssp-sec">Your renovation so far<a>Add receipt</a></div>
      ${cats.map(([c,a])=>`<div class="cat"><div class="t"><b>${c}</b>${a?`<b>${fmt(a)}</b>`:'<span>Not started</span>'}</div><div class="bar2"><i style="width:${Math.round(a/f.limit*100)}%"></i></div></div>`).join('')}
+     <div class="tax-box"><div class="ico">${ICON.pct}</div><div><b>Possible tax benefit</b><span>Interest on your kitchen plan may be tax-deductible as a home improvement. Your receipts and annual statement are ready for your tax return.</span><a class="link">Download annual statement</a></div></div>
      <div class="ssp-sec">Manage</div>
      <div class="tx"><div class="l"><b>Direct debit</b><span>Current account ••4567</span></div><div class="r"><span class="pill ok">ON</span></div></div>
      <div class="tx"><div class="l"><b>Card controls</b><span>Lock card, wallet, limits</span></div><div class="r">›</div></div>`,
